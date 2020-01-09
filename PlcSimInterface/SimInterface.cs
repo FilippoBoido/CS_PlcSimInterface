@@ -16,6 +16,7 @@ namespace PlcSimInterface
         public SimInterface(PlcInterface plcInterface)
         {
             this.plcInterface = plcInterface;
+            md5Hash = MD5.Create();
         }
 
         public void Dispose()
@@ -25,12 +26,7 @@ namespace PlcSimInterface
 
         public void Execute()
         {
-            
-            Console.WriteLine();
-            Console.WriteLine("Press enter to end the program.");
-            Console.WriteLine();
-            md5Hash = MD5.Create();
-           
+    
             for (int i = 0; i < plcInterface.IBoolInPathCtr - 1; i++)
             {
                 //Get inputs from the simulation and transfer them to plc.

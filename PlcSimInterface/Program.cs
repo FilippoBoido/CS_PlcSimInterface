@@ -14,8 +14,7 @@ namespace PlcSimInterface
 
     class Program
     {
-      
-       
+
         static void Main(string[] args)
         {
             ArrayList plcInterfaceList = new ArrayList();
@@ -45,7 +44,8 @@ namespace PlcSimInterface
                 SimInterface simInterface = new SimInterface(plcInterface);
                 simInterfaceList.Add(simInterface);
             }
-
+            Console.WriteLine("Press enter to end the program.");
+            Console.WriteLine();
             while (true)
             {
                 if (Console.KeyAvailable)
