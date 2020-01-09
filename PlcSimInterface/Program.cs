@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using TwinCAT.Ads;
 
 namespace PlcSimInterface
@@ -13,18 +14,65 @@ namespace PlcSimInterface
 
     class Program
     {
+      
+       
         static void Main(string[] args)
         {
-            PlcInterface plcInterface = new PlcInterface();
+            ArrayList plcInterfaceList = new ArrayList();
+            ArrayList simInterfaceList = new ArrayList();
 
-            plcInterface.Fetch();
+            string filename = "config.xml";
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var configFilepath = Path.Combine(currentDirectory, filename);
+            
+            System.Xml.XmlDataDocument xmldoc = new System.Xml.XmlDataDocument();
+            XmlNodeList xmlAddresses;
+            
+            string str = null;
+            FileStream fs = new FileStream(configFilepath, FileMode.Open, FileAccess.Read);
+            xmldoc.Load(fs);
+            xmlAddresses = xmldoc.GetElementsByTagName("Address");
 
-            SimInterface simInterface = new SimInterface(plcInterface);
-            simInterface.Execute();
+            var numOfPlcs = xmlAddresses.Count;
+    
+            for(int i = 0; i<numOfPlcs; i++)
+            {
+                string amsAddress = xmlAddresses[i].ChildNodes.Item(0).InnerText.Trim();
+                Console.WriteLine("AmsNetId: {0}",amsAddress);
+                PlcInterface plcInterface = new PlcInterface(amsAddress);
+                plcInterfaceList.Add(plcInterface);
+                plcInterface.Fetch();
+                SimInterface simInterface = new SimInterface(plcInterface);
+                simInterfaceList.Add(simInterface);
+            }
 
-            plcInterface.Dispose();
-          
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    if(key.Key == ConsoleKey.Enter)
+                    {
+                        break;
+                    }
+                }
 
+                Console.Write(".");
+                foreach(SimInterface simInterface in simInterfaceList)
+                {
+                     simInterface.Execute();
+                }              
+            }
+
+            foreach(SimInterface simInterface in simInterfaceList)
+            {
+                    simInterface.Dispose();
+            }
+            
+            foreach(PlcInterface plcInterface in plcInterfaceList)
+            {
+                    plcInterface.Dispose();
+            }
         }
     }
 }

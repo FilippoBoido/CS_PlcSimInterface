@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EngineIO">
-      <HintPath>..\..\..\..\Downloads\factoryio-sdk-master\factoryio-sdk-master\lib\EngineIO.dll</HintPath>
+      <HintPath>..\..\..\..\..\Downloads\EngineIO.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

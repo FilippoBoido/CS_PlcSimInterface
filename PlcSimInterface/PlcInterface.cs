@@ -12,8 +12,9 @@ namespace PlcSimInterface
 {
     class PlcInterface
     {
-        public PlcInterface()
+        public PlcInterface(string amsNetId)
         {
+            this.amsNetId = amsNetId;
             readerReadBoolOut = new AdsBinaryReader(streamReadBoolOut);
         }
 
@@ -29,11 +30,13 @@ namespace PlcSimInterface
         public int IBoolOutPathCtr { get => iBoolOutPathCtr; }
         public string[] ArrBoolInPaths { get => arrBoolInPaths;  }
         public string[] ArrBoolOutPaths { get => arrBoolOutPaths;}
-        public AdsStream streamReadBoolOut = new AdsStream(1);
-        AdsBinaryReader readerReadBoolOut; 
+
+        private AdsStream streamReadBoolOut = new AdsStream(1);
+        private AdsBinaryReader readerReadBoolOut; 
         private TcAdsClient tcClient;
         private string[] arrBoolInPaths = null; 
         private string[] arrBoolOutPaths = null;
+        private string amsNetId;
 
         public void Dispose()
         {
@@ -82,7 +85,7 @@ namespace PlcSimInterface
         public void Fetch()
         {
             tcClient = new TcAdsClient();
-            tcClient.Connect(851);
+            tcClient.Connect(amsNetId,851);
             try
             {
                 //get the input paths
