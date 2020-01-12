@@ -36,10 +36,20 @@ namespace PlcSimInterface
         private TcAdsClient tcClient;
         private string[] arrBoolInPaths = null; 
         private string[] arrBoolOutPaths = null;
+        private int[] inputHandleArray, outputHandleArray;
         private string amsNetId;
 
         public void Dispose()
         {
+            for (int i = 0; i < IBoolInPathCtr-1; i++)
+            {
+                tcClient.DeleteVariableHandle(inputHandleArray[i]);
+            }
+            for (int i = 0; i < IBoolOutPathCtr-1; i++)
+            {
+                tcClient.DeleteVariableHandle(outputHandleArray[i]);
+            }
+            
             tcClient.Disconnect();
             tcClient.Dispose();
         }
@@ -66,19 +76,17 @@ namespace PlcSimInterface
         }
 
         public void writeBooleanInput(int index, bool value)
-        {
-            int iHandle = tcClient.CreateVariableHandle(arrBoolInPaths[index]);
-            tcClient.WriteAny(iHandle, value);
-            tcClient.DeleteVariableHandle(iHandle);
+        {           
+            tcClient.WriteAny(inputHandleArray[index], value);  
         }
 
         public bool readBooleanOutput(int index)
         {
-            int iHandle = tcClient.CreateVariableHandle(arrBoolOutPaths[index]);
-            tcClient.Read(iHandle, streamReadBoolOut);
+    
+            tcClient.Read(outputHandleArray[index], streamReadBoolOut);
             bool val = readerReadBoolOut.ReadBoolean();
             streamReadBoolOut.Position = 0;
-            tcClient.DeleteVariableHandle(iHandle);
+            
             return val;
         }
 
@@ -106,6 +114,7 @@ namespace PlcSimInterface
                 BinaryReader readerBoolInPaths = new BinaryReader(streamBoolInPaths);
 
                 tcClient.Read(hBoolInPaths, streamBoolInPaths);
+                inputHandleArray = new int[IBoolInPathCtr-1];
                 for (int i = 1; i < IBoolInPathCtr; i++)
                 {
                     byte[] buffer = readerBoolInPaths.ReadBytes(256);
@@ -114,6 +123,7 @@ namespace PlcSimInterface
                     int index = var.IndexOf('\0');
                     var = var.Remove(index);
                     arrBoolInPaths[i - 1] = var;
+                    inputHandleArray[i - 1] = tcClient.CreateVariableHandle(arrBoolInPaths[i - 1]);
                     using (MD5 md5Hash = MD5.Create())
                     {
                         string hash = GetMd5Hash(md5Hash, var);
@@ -137,6 +147,7 @@ namespace PlcSimInterface
                 BinaryReader readerBoolOutPaths = new BinaryReader(streamBoolOutPaths);
 
                 tcClient.Read(hBoolOutPaths, streamBoolOutPaths);
+                outputHandleArray = new int[IBoolOutPathCtr-1];
                 for (int i = 1; i < IBoolOutPathCtr; i++)
                 {
                     byte[] buffer = readerBoolOutPaths.ReadBytes(256);
@@ -145,6 +156,7 @@ namespace PlcSimInterface
                     int index = var.IndexOf('\0');
                     var = var.Remove(index);
                     arrBoolOutPaths[i - 1] = var;
+                    outputHandleArray[i - 1] = tcClient.CreateVariableHandle(arrBoolOutPaths[i - 1]);
                     using (MD5 md5Hash = MD5.Create())
                     {
                         string hash = GetMd5Hash(md5Hash, var);

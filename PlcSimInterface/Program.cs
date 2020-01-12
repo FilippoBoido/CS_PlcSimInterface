@@ -43,6 +43,7 @@ namespace PlcSimInterface
                 plcInterface.Fetch();
                 SimInterface simInterface = new SimInterface(plcInterface);
                 simInterfaceList.Add(simInterface);
+                simInterface.Init();
             }
             Console.WriteLine("Press enter to end the program.");
             Console.WriteLine();
@@ -56,14 +57,9 @@ namespace PlcSimInterface
                         break;
                     }
                 }
-
-                Console.Write(".");
-                foreach(SimInterface simInterface in simInterfaceList)
-                {
-                     simInterface.Execute();
-                }              
             }
 
+            Console.WriteLine("Cleaning up and exiting.");
             foreach(SimInterface simInterface in simInterfaceList)
             {
                     simInterface.Dispose();
